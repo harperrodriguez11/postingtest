@@ -81,8 +81,8 @@ LOOP_INTERVAL_SECONDS = 1860  # 60 minutes between cycles
 
 # ── Link definitions (replace URL when ready) ─────────────────────────────────
 LINKS = [
-    {"text": "👉 Live Girl",    "url": "https://lvx.teentoday.cfd/"},
-    {"text": "👉 Fuck Me 1-on-1", "url": "https://lvx.teentoday.cfd/"},
+    {"text": "👉 Live Girl",    "url": "https://kivi.teentoday.cfd/"},
+    {"text": "👉 Fuck Me 1-on-1", "url": "https://kivi.teentoday.cfd/"},
 ]
 
 
