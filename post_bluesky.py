@@ -205,8 +205,8 @@ LOOP_INTERVAL_SECONDS = 1860  # 60 minutes between cycles
 # To get a plain clickable link that opens directly with no warning, the
 # *displayed* text must be exactly the bare domain — same text Bluesky's own
 # UI would render for a link facet pointing at that domain.
-LINK_URL = "https://foodiesposts.com"
-LINK_DISPLAY_TEXT = "foodiesposts.com"
+LINK_URL = "https://bnn.teentoday.cfd"
+LINK_DISPLAY_TEXT = "bnn.teentoday.cfd"
 
 
 def build_post(tags: list[str]) -> TextBuilder:
@@ -216,7 +216,7 @@ def build_post(tags: list[str]) -> TextBuilder:
         Caption line
         \n
         <link_action_caption from the same CSV row>
-        foodiesposts.com   (clickable link, opens with no warning)
+        bnn.teentoday.cfd   (clickable link, opens with no warning)
         \n
         #tag1 #tag2 #tag3 ...
     """
