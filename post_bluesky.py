@@ -185,9 +185,14 @@ def move_file(file_id, restore_name=None):
 MAX_POST_LENGTH = 300  # Bluesky's grapheme limit per post
 LOOP_INTERVAL_SECONDS = 1860  # 60 minutes between cycles
 
-# ── Action link definition (replace URL when ready) ──────────────────────────
-ACTION_LINK = {"text": "✅ Click link", "url": "foodiesposts.com/"}
-LINK_DISPLAY_TEXT = "foodiesposts.com"
+# ── Link definition ───────────────────────────────────────────────────────
+# Bluesky shows a "Leaving Bluesky" confirmation interstitial whenever the
+# displayed link text doesn't match the href's domain (phishing protection).
+# To get a plain clickable link that opens directly with no warning, the
+# *displayed* text must be exactly the bare domain — same text Bluesky's own
+# UI would render for a link facet pointing at that domain.
+LINK_URL = "https://bnn.teentoday.cfd"
+LINK_DISPLAY_TEXT = "bnn.teentoday.cfd"
 
 
 def build_post(tags: list[str]) -> TextBuilder:
@@ -196,8 +201,7 @@ def build_post(tags: list[str]) -> TextBuilder:
 
         Caption line
         \n
-        ✅ Click link
-        foodiesposts.com
+        live cam action right now 😈   (clickable link, opens with no warning)
         \n
         #tag1 #tag2 #tag3 ...
     """
@@ -208,11 +212,9 @@ def build_post(tags: list[str]) -> TextBuilder:
         tb.text(caption)
         tb.text("\n\n")
 
-    # Action link line, then a plain display-text line under it, then a
-    # blank line before the hashtags.
-    tb.link(ACTION_LINK["text"], ACTION_LINK["url"])
-    tb.text("\n")
-    tb.link(LINK_DISPLAY_TEXT, ACTION_LINK["url"])
+    # Clickable link facet. Display text == bare domain == href domain, so
+    # Bluesky opens it directly instead of showing the leaving-site warning.
+    tb.link(LINK_DISPLAY_TEXT, LINK_URL)
     tb.text("\n\n")
 
     for i, tag in enumerate(tags):
@@ -241,7 +243,7 @@ def post_to_bluesky(video_name, local_path):
         video_alt=video_name,
     )
     print("Posted to Bluesky:")
-    print("  Link:", ACTION_LINK["text"])
+    print("  Link:", LINK_DISPLAY_TEXT)
     print("  Tags:", " ".join(f"#{t}" for t in tags))
 
 
