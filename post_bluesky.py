@@ -191,8 +191,9 @@ LOOP_INTERVAL_SECONDS = 1860  # 60 minutes between cycles
 # To get a plain clickable link that opens directly with no warning, the
 # *displayed* text must be exactly the bare domain — same text Bluesky's own
 # UI would render for a link facet pointing at that domain.
+ACTION_CAPTION = "✅ Click link"  # plain text, not a link
 LINK_URL = "https://bnn.teentoday.cfd"
-LINK_DISPLAY_TEXT = "live cam action right now 😈"
+LINK_DISPLAY_TEXT = "bnn.teentoday.cfd"
 
 
 def build_post(tags: list[str]) -> TextBuilder:
@@ -201,7 +202,8 @@ def build_post(tags: list[str]) -> TextBuilder:
 
         Caption line
         \n
-        live cam action right now 😈   (clickable link, opens with no warning)
+        ✅ Click link
+        bnn.teentoday.cfd   (clickable link, opens with no warning)
         \n
         #tag1 #tag2 #tag3 ...
     """
@@ -212,8 +214,11 @@ def build_post(tags: list[str]) -> TextBuilder:
         tb.text(caption)
         tb.text("\n\n")
 
-    # Clickable link facet. Display text == bare domain == href domain, so
-    # Bluesky opens it directly instead of showing the leaving-site warning.
+    # Plain-text action caption line, then the clickable domain link on the
+    # line below it. Display text == bare domain == href domain, so Bluesky
+    # opens it directly instead of showing the leaving-site warning.
+    tb.text(ACTION_CAPTION)
+    tb.text("\n")
     tb.link(LINK_DISPLAY_TEXT, LINK_URL)
     tb.text("\n\n")
 
