@@ -64,6 +64,25 @@ def pick_random_hashtags(filepath="hashtags.txt"):
     return [word.lstrip("#") for word in chosen_line.split() if word.startswith("#")]
 
 
+def load_captions(filepath="captions.txt"):
+    """Return a list of non-empty caption lines."""
+    captions = []
+    with open(filepath, "r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if line:
+                captions.append(line)
+    return captions
+
+
+def pick_random_caption(filepath="captions.txt"):
+    """Pick one random caption line; return '' if the file has none."""
+    captions = load_captions(filepath)
+    if not captions:
+        return ""
+    return random.choice(captions)
+
+
 def claim_file(service, file_id, current_name):
     """
     Try to "claim" a Drive file by renaming it with this run's unique tag.
@@ -166,35 +185,34 @@ def move_file(file_id, restore_name=None):
 MAX_POST_LENGTH = 300  # Bluesky's grapheme limit per post
 LOOP_INTERVAL_SECONDS = 1860  # 60 minutes between cycles
 
-# ── Link definitions (replace URL when ready) ─────────────────────────────────
-LINKS = [
-    {"text": "👉 Live Girl",    "url": "https://kivi.teentoday.cfd/"},
-    {"text": "👉 Fuck Me 1-on-1", "url": "https://kivi.teentoday.cfd/"},
-]
+# ── Action link definition (replace URL when ready) ──────────────────────────
+ACTION_LINK = {"text": "✅ Click link", "url": "foodiesposts.com/"}
+LINK_DISPLAY_TEXT = "foodiesposts.com"
 
 
 def build_post(tags: list[str]) -> TextBuilder:
     """
     Final post layout:
 
+        Caption line
         \n
-        👉 Live Girl
-        \n
-        👉 Fuck Me 1-on-1
+        ✅ Click link
+        foodiesposts.com
         \n
         #tag1 #tag2 #tag3 ...
     """
     tb = TextBuilder()
 
-    # blank line at the very top
+    caption = pick_random_caption("captions.txt")
+    if caption:
+        tb.text(caption)
+        tb.text("\n\n")
+
+    # Action link line, then a plain display-text line under it, then a
+    # blank line before the hashtags.
+    tb.link(ACTION_LINK["text"], ACTION_LINK["url"])
     tb.text("\n")
-
-    # first link, blank line, second link
-    tb.link(LINKS[0]["text"], LINKS[0]["url"])
-    tb.text("\n\n")
-    tb.link(LINKS[1]["text"], LINKS[1]["url"])
-
-    # blank line then hashtags
+    tb.link(LINK_DISPLAY_TEXT, ACTION_LINK["url"])
     tb.text("\n\n")
 
     for i, tag in enumerate(tags):
@@ -223,7 +241,7 @@ def post_to_bluesky(video_name, local_path):
         video_alt=video_name,
     )
     print("Posted to Bluesky:")
-    print("  Links:", [l["text"] for l in LINKS])
+    print("  Link:", ACTION_LINK["text"])
     print("  Tags:", " ".join(f"#{t}" for t in tags))
 
 
