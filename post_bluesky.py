@@ -1,3 +1,4 @@
+import csv
 import os
 import pickle
 import random
@@ -64,23 +65,36 @@ def pick_random_hashtags(filepath="hashtags.txt"):
     return [word.lstrip("#") for word in chosen_line.split() if word.startswith("#")]
 
 
-def load_captions(filepath="captions.txt"):
-    """Return a list of non-empty caption lines."""
-    captions = []
-    with open(filepath, "r", encoding="utf-8") as f:
-        for line in f:
-            line = line.strip()
-            if line:
-                captions.append(line)
-    return captions
+def load_caption_rows(filepath="recipes_captions.csv"):
+    """Return a list of (caption, link_action_caption) tuples from the CSV.
+
+    Each row pairs a caption with its own matching CTA text, so we keep
+    them together rather than picking each independently — that's what
+    keeps the CTA relevant to the caption it's paired with.
+    """
+    rows = []
+    with open(filepath, "r", encoding="utf-8", newline="") as f:
+        reader = csv.DictReader(f)
+        # Be tolerant of the "lik_action_caption" header typo in the source
+        # file, or a correctly spelled "link_action_caption" header.
+        for row in reader:
+            caption = (row.get("captions") or "").strip()
+            cta = (
+                row.get("link_action_caption")
+                or row.get("lik_action_caption")
+                or ""
+            ).strip()
+            if caption and cta:
+                rows.append((caption, cta))
+    return rows
 
 
-def pick_random_caption(filepath="captions.txt"):
-    """Pick one random caption line; return '' if the file has none."""
-    captions = load_captions(filepath)
-    if not captions:
-        return ""
-    return random.choice(captions)
+def pick_random_caption_and_cta(filepath="recipes_captions.csv"):
+    """Pick one random (caption, cta) pair; return ('', '') if none found."""
+    rows = load_caption_rows(filepath)
+    if not rows:
+        return "", ""
+    return random.choice(rows)
 
 
 def claim_file(service, file_id, current_name):
@@ -191,9 +205,8 @@ LOOP_INTERVAL_SECONDS = 1860  # 60 minutes between cycles
 # To get a plain clickable link that opens directly with no warning, the
 # *displayed* text must be exactly the bare domain — same text Bluesky's own
 # UI would render for a link facet pointing at that domain.
-ACTION_CAPTION = "✅ Click link"  # plain text, not a link
-LINK_URL = "https://bnn.teentoday.cfd"
-LINK_DISPLAY_TEXT = "bnn.teentoday.cfd"
+LINK_URL = "https://foodiesposts.com"
+LINK_DISPLAY_TEXT = "foodiesposts.com"
 
 
 def build_post(tags: list[str]) -> TextBuilder:
@@ -202,23 +215,25 @@ def build_post(tags: list[str]) -> TextBuilder:
 
         Caption line
         \n
-        ✅ Click link
-        bnn.teentoday.cfd   (clickable link, opens with no warning)
+        <link_action_caption from the same CSV row>
+        foodiesposts.com   (clickable link, opens with no warning)
         \n
         #tag1 #tag2 #tag3 ...
     """
     tb = TextBuilder()
 
-    caption = pick_random_caption("captions.txt")
+    caption, cta = pick_random_caption_and_cta("recipes_captions.csv")
     if caption:
         tb.text(caption)
         tb.text("\n\n")
 
-    # Plain-text action caption line, then the clickable domain link on the
-    # line below it. Display text == bare domain == href domain, so Bluesky
-    # opens it directly instead of showing the leaving-site warning.
-    tb.text(ACTION_CAPTION)
-    tb.text("\n")
+    # Plain-text CTA line (matched to the caption above from the same CSV
+    # row), then the clickable domain link on the line below it. Display
+    # text == bare domain == href domain, so Bluesky opens it directly
+    # instead of showing the leaving-site warning.
+    if cta:
+        tb.text(cta)
+        tb.text("\n")
     tb.link(LINK_DISPLAY_TEXT, LINK_URL)
     tb.text("\n\n")
 
