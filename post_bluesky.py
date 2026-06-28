@@ -197,7 +197,7 @@ def move_file(file_id, restore_name=None):
 
 
 MAX_POST_LENGTH = 300  # Bluesky's grapheme limit per post
-LOOP_INTERVAL_SECONDS = 1860  # 60 minutes between cycles
+LOOP_INTERVAL_SECONDS = 3712  # 60 minutes between cycles
 
 # ── Link definition ───────────────────────────────────────────────────────
 # Bluesky shows a "Leaving Bluesky" confirmation interstitial whenever the
